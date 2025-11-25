@@ -1,5 +1,5 @@
 (function () {
-    const base = "https://raw.githubusercontent.com/4samy/q-u-m/main/src/";
+    const base = "https://cdn.jsdelivr.net/gh/4samy/quality-ultra-max/src/";
 
     const files = [
         "core/dataFetcher.js",
