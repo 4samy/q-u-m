@@ -101,11 +101,15 @@
             const content = page.revisions[0].slots.main.content;
             const rules = JSON.parse(content);
             
-            const processedRules = rules.map(rule => ({
-               pattern: new RegExp(rule.pattern, rule.flags || 'g'),
-               description: rule.description || '',
-               suggestion: rule.suggestion || ''
-            }));
+// تحويل object → array إذا لزم الأمر
+const list = Array.isArray(rules) ? rules : Object.values(rules);
+
+// تجهيز القواعد
+const processedRules = list.map(rule => ({
+   pattern: new RegExp(rule.pattern, rule.flags || 'g'),
+   description: rule.description || '',
+   suggestion: rule.suggestion || ''
+}));
 
             this.cache.set(cacheKey, processedRules);
             return processedRules;
