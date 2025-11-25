@@ -1,5 +1,5 @@
 (function () {
-    const base = "https://cdn.jsdelivr.net/gh/4samy/q-u-m@4d1e42c/src/";
+    const base = "https://cdn.jsdelivr.net/gh/4samy/q-u-m@bab866f/src/";
 
     const files = [
         "core/dataFetcher.js",
