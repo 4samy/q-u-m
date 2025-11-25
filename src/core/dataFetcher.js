@@ -101,15 +101,24 @@
             const content = page.revisions[0].slots.main.content;
             const rules = JSON.parse(content);
             
-// تحويل object → array إذا لزم الأمر
-const list = Array.isArray(rules) ? rules : Object.values(rules);
+// rules قد تكون Object أو Array
+let list = [];
 
-// تجهيز القواعد
+if (Array.isArray(rules)) {
+    list = rules;
+} else if (typeof rules === "object" && rules !== null) {
+    list = Object.values(rules);
+} else {
+    console.warn("Invalid grammar rules format:", rules);
+    return this.getDefaultGrammarRules();
+}
+
 const processedRules = list.map(rule => ({
-   pattern: new RegExp(rule.pattern, rule.flags || 'g'),
-   description: rule.description || '',
-   suggestion: rule.suggestion || ''
+    pattern: new RegExp(rule.pattern, rule.flags || 'g'),
+    description: rule.description || '',
+    suggestion: rule.suggestion || ''
 }));
+
 
             this.cache.set(cacheKey, processedRules);
             return processedRules;
