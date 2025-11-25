@@ -145,62 +145,69 @@
        * بدء التحليل
        */
       async analyze() {
-         if (this.isAnalyzing) {
-            mw.notify('التحليل قيد التنفيذ...', { type: 'warn' });
-            return;
-         }
+    if (this.isAnalyzing) {
+        mw.notify('التحليل قيد التنفيذ...', { type: 'warn' });
+        return;
+    }
 
-         this.isAnalyzing = true;
-         const $button = $('#qum-analyze-btn span');
-         const originalText = $button.text();
+    this.isAnalyzing = true;
+    const $button = $('#qum-analyze-btn span');
+    const originalText = $button.text();
 
-         try {
-            // تحديث النص
-            $button.text('⏳ جارٍ التحليل...');
+    try {
+        // تحديث نص الزر
+        $button.text('⏳ جارٍ التحليل...');
 
-            // إظهار إشعار
-            mw.notify('جارٍ جمع بيانات المقالة...', {
-               type: 'info',
-               tag: 'qum-progress'
-            });
+        // إشعار بدء جمع البيانات
+        mw.notify('جارٍ جمع بيانات المقالة...', {
+            type: 'info',
+            tag: 'qum-progress'
+        });
 
-            // الخطوة 1: جمع البيانات
-            const pageTitle = mw.config.get('wgPageName');
-            const data = await this.modules.dataFetcher.fetchAll(pageTitle);
+        // الخطوة 1: جمع البيانات
+        const pageTitle = mw.config.get('wgPageName');
+        const data = await this.modules.dataFetcher.fetchAll(pageTitle);
 
-            // الخطوة 2: بناء نموذج المقالة
-            mw.notify.close('qum-progress');
-            mw.notify('جارٍ تحليل محتوى المقالة...', {
-               type: 'info',
-               tag: 'qum-progress'
-            });
+        // تحديث الإشعار
+        mw.notify('جارٍ تحليل محتوى المقالة...', {
+            type: 'info',
+            tag: 'qum-progress'
+        });
 
-            // UnifiedArticleModel expects the raw data object
-            const articleModel = new window.QualityUltraMax.UnifiedArticleModel(data);
+        // الخطوة 2: بناء نموذج المقالة
+        const articleModel = new window.QualityUltraMax.UnifiedArticleModel(data);
 
-            // الخطوة 3: تشغيل المحللات
-            const analysisResults = await this._runAnalyzers(articleModel);
+        // الخطوة 3: تشغيل المحللات
+        const analysisResults = await this._runAnalyzers(articleModel);
 
-            // الخطوة 4: حساب النتيجة النهائية
-            const finalResult = this.modules.scoringEngine.calculateFinalScore(analysisResults);
+        // الخطوة 4: حساب النتيجة النهائية
+        const finalResult = this.modules.scoringEngine.calculateFinalScore(analysisResults);
 
-            // الخطوة 5: عرض النتائج
-            this.modules.panelRenderer.render(finalResult);
+        // الخطوة 5: عرض النتائج
+        this.modules.panelRenderer.render(finalResult);
 
-            // إغلاق الإشعار
-            mw.notify.close('qum-progress');
-            mw.notify('تم التحليل بنجاح ✓', { type: 'success' });
+        // إشعار النجاح
+        mw.notify('تم التحليل بنجاح ✓', {
+            type: 'success',
+            tag: 'qum-progress'
+        });
 
-            console.log('[QUM] Analysis complete:', finalResult);
+        console.log('[QUM] Analysis complete:', finalResult);
 
-         } catch (error) {
-            console.error('[QUM] Analysis error:', error);
-            mw.notify('حدث خطأ أثناء التحليل: ' + error.message, { type: 'error' });
-         } finally {
-            this.isAnalyzing = false;
-            $button.text(originalText);
-         }
-      }
+    } catch (error) {
+        console.error('[QUM] Analysis error:', error);
+
+        mw.notify('حدث خطأ أثناء التحليل: ' + error.message, {
+            type: 'error',
+            tag: 'qum-progress'
+        });
+
+    } finally {
+        this.isAnalyzing = false;
+        $button.text(originalText);
+    }
+}
+
 
       /**
        * تشغيل جميع المحللات
