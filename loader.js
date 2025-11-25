@@ -1,5 +1,5 @@
 (function () {
-    const base = "https://cdn.jsdelivr.net/gh/4samy/q-u-m/src/";
+    const base = "https://raw.githubusercontent.com/4samy/q-u-m/main/src/";
 
     const files = [
         "core/dataFetcher.js",
