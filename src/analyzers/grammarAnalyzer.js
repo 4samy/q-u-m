@@ -9,7 +9,7 @@
 
    class GrammarAnalyzer {
       constructor() {
-         this.maxScore = 5; // جزء من نقاط البنية
+         this.maxScore = 5;
       }
 
       analyze(articleModel) {
@@ -20,14 +20,17 @@
          };
 
          const firstParagraphs = this._getFirstParagraphs(articleModel, 3);
-const rawErrors = this._detectErrors(firstParagraphs || '', articleModel.grammarRules || []);
-const errors = Array.isArray(rawErrors) ? rawErrors : [];
 
-         results.details.errorCount = Array.isArray(errors) ? errors.length : 0;
+         const grammarRules = Array.isArray(articleModel.grammarRules)
+            ? articleModel.grammarRules
+            : [];
 
-         results.details.errors = errors.slice(0, 10); // أول 10 أخطاء
+         const errors = this._detectErrors(firstParagraphs || '', grammarRules);
 
-         const hasTranslationTemplate = articleModel.templates.some(t => 
+         results.details.errorCount = errors.length;
+         results.details.errors = errors.slice(0, 10);
+
+         const hasTranslationTemplate = articleModel.templates.some(t =>
             t.includes('ترجمة آلية') || t.includes('Translated')
          );
          results.details.hasTranslationTemplate = hasTranslationTemplate;
@@ -53,7 +56,6 @@ const errors = Array.isArray(rawErrors) ? rawErrors : [];
 
          results.score = Math.max(0, Math.min(this.maxScore, score));
 
-         // الملاحظات
          if (errors.length > 0) {
             results.notes.push(`📝 تم رصد ${errors.length} خطأ لغوي محتمل في بداية المقال. يُستحسن المراجعة اللغوية.`);
          }
@@ -86,16 +88,32 @@ const errors = Array.isArray(rawErrors) ? rawErrors : [];
       _detectErrors(text, rules) {
          const errors = [];
 
+         if (!Array.isArray(rules)) {
+            console.warn('[QUM] Grammar rules malformed. Falling back to empty array.');
+            return errors;
+         }
+
          rules.forEach(rule => {
-            const matches = text.match(rule.pattern);
-            if (matches) {
-               matches.forEach(match => {
-                  errors.push({
-                     match,
-                     description: rule.description,
-                     suggestion: rule.suggestion
+            if (!rule || !rule.pattern) return;
+
+            try {
+               const regex = rule.pattern instanceof RegExp
+                  ? rule.pattern
+                  : new RegExp(rule.pattern, rule.flags || 'g');
+
+               const matches = text.match(regex);
+
+               if (matches) {
+                  matches.forEach(match => {
+                     errors.push({
+                        match,
+                        description: rule.description || '',
+                        suggestion: rule.suggestion || ''
+                     });
                   });
-               });
+               }
+            } catch (e) {
+               console.error('[QUM] Invalid grammar rule pattern:', rule, e);
             }
          });
 
