@@ -20,9 +20,11 @@
          };
 
          const firstParagraphs = this._getFirstParagraphs(articleModel, 3);
-         const errors = this._detectErrors(firstParagraphs, articleModel.grammarRules);
+const rawErrors = this._detectErrors(firstParagraphs || '', articleModel.grammarRules || []);
+const errors = Array.isArray(rawErrors) ? rawErrors : [];
 
-         results.details.errorCount = errors.length;
+         results.details.errorCount = Array.isArray(errors) ? errors.length : 0;
+
          results.details.errors = errors.slice(0, 10); // أول 10 أخطاء
 
          const hasTranslationTemplate = articleModel.templates.some(t => 
