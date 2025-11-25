@@ -159,10 +159,14 @@
             $button.text('⏳ جارٍ التحليل...');
 
             // إظهار إشعار
-            const notif = mw.notify('جارٍ جمع بيانات المقالة...', {
-               type: 'info',
-               tag: 'qum-progress'
-            });
+mw.notify('جارٍ جمع بيانات المقالة...', {
+   type: 'info',
+   tag: 'qum-progress'
+});
+
+// لإغلاق الإشعار:
+mw.notify.close('qum-progress');
+
 
             // الخطوة 1: جمع البيانات
             const pageTitle = mw.config.get('wgPageName');
